@@ -66,7 +66,7 @@ class AKPlugin: NSObject, Plugin {
     }
 
     private var modifierFlag: UInt = 0
-    func setupKeyboard(keyboard: @escaping(UInt16, Bool, Bool) -> Bool,
+    func setupKeyboard(keyboard: @escaping(UInt16, Bool, Bool, Bool) -> Bool,
                        swapMode: @escaping() -> Bool) {
         func checkCmd(modifier: NSEvent.ModifierFlags) -> Bool {
             if modifier.contains(.command) {
@@ -81,7 +81,8 @@ class AKPlugin: NSObject, Plugin {
             if checkCmd(modifier: event.modifierFlags) {
                 return event
             }
-            let consumed = keyboard(event.keyCode, true, event.isARepeat)
+            let consumed = keyboard(event.keyCode, true, event.isARepeat,
+                                    event.modifierFlags.contains(.control))
             if consumed {
                 return nil
             }
@@ -91,7 +92,8 @@ class AKPlugin: NSObject, Plugin {
             if checkCmd(modifier: event.modifierFlags) {
                 return event
             }
-            let consumed = keyboard(event.keyCode, false, false)
+            let consumed = keyboard(event.keyCode, false, false,
+                                    event.modifierFlags.contains(.control))
             if consumed {
                 return nil
             }
@@ -104,13 +106,15 @@ class AKPlugin: NSObject, Plugin {
             let pressed = self.modifierFlag < event.modifierFlags.rawValue
             let changed = self.modifierFlag ^ event.modifierFlags.rawValue
             self.modifierFlag = event.modifierFlags.rawValue
-            if pressed && NSEvent.ModifierFlags(rawValue: changed).contains(.option) {
+            let changedFlags = NSEvent.ModifierFlags(rawValue: changed)
+            if pressed && changedFlags.contains(.option) {
                 if swapMode() {
                     return nil
                 }
                 return event
             }
-            let consumed = keyboard(event.keyCode, pressed, false)
+            let consumed = keyboard(event.keyCode, pressed, false,
+                                    event.modifierFlags.contains(.control))
             if consumed {
                 return nil
             }
@@ -178,22 +182,22 @@ class AKPlugin: NSObject, Plugin {
         NSMenu.setMenuBarVisible(visible)
     }
     var windowTitle: String? {
-        get {
-            NSApplication.shared.windows.first?.title
-        }
-        set {
-            if let newValue {
-                DispatchQueue.main.async {
-                    NSApplication.shared.windows.first?.title = newValue
+            get {
+                NSApplication.shared.windows.first?.title
+            }
+            set {
+                if let newValue {
+                    DispatchQueue.main.async {
+                        NSApplication.shared.windows.first?.title = newValue
+                    }
                 }
             }
         }
-    }
 
-    var windowImage: CGImage? {
-        guard let windowID = NSApplication.shared.windows.first?.windowNumber else {
-            return nil
+        var windowImage: CGImage? {
+            guard let windowID = NSApplication.shared.windows.first?.windowNumber else {
+                return nil
+            }
+            return CGWindowListCreateImage(.null, .optionIncludingWindow, CGWindowID(windowID), .boundsIgnoreFraming)
         }
-        return CGWindowListCreateImage(.null, .optionIncludingWindow, CGWindowID(windowID), .boundsIgnoreFraming)
-    }
 }

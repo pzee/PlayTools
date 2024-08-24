@@ -215,15 +215,18 @@ final class MaaTools {
     }
 
     private func toucherDown(atX: Int, atY: Int) {
-        Toucher.touchcam(point: .init(x: atX, y: atY), phase: .began, tid: &tid)
+        Toucher.touchcam(point: .init(x: atX, y: atY), phase: .began, tid: &tid, actionName: "tD", keyName: "d")
+//        Toucher.touchcam(point: .init(x: atX, y: atY), phase: .began, tid: &tid)
     }
 
     private func toucherMove(atX: Int, atY: Int) {
-        Toucher.touchcam(point: .init(x: atX, y: atY), phase: .moved, tid: &tid)
+//        Toucher.touchcam(point: .init(x: atX, y: atY), phase: .moved, tid: &tid)
+        Toucher.touchcam(point: .init(x: atX, y: atY), phase: .moved, tid: &tid, actionName: "tM", keyName: "m")
     }
 
     private func toucherUp(atX: Int, atY: Int) {
-        Toucher.touchcam(point: .init(x: atX, y: atY), phase: .ended, tid: &tid)
+//        Toucher.touchcam(point: .init(x: atX, y: atY), phase: .ended, tid: &tid)
+        Toucher.touchcam(point: .init(x: atX, y: atY), phase: .ended, tid: &tid, actionName: "tU", keyName: "u")
     }
 
     private func version(to connection: NWConnection) async throws {
